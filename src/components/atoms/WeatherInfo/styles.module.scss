@@ -1,0 +1,11 @@
+.container {
+  .icon{
+    width: 40px;
+    height: 40px;
+  }
+  .weather {
+    ::first-letter {
+      text-transform:capitalize;
+    }
+  }
+}

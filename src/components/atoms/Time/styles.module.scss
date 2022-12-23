@@ -1,0 +1,17 @@
+.clock {
+    display: flex;
+    margin: 10px;
+    border-radius: 10px;
+    background: #0d1621;
+    color: white;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    justify-content: center;
+  }
+  .hour {
+    display: flex;
+    align-items: center;
+    font-size: 2rem;
+    justify-content: space-between;
+  }

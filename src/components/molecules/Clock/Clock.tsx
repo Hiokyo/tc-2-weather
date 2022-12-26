@@ -1,6 +1,6 @@
 import { Card } from 'antd'
 import React from 'react'
-import TimeNow from '../atoms/Time'
+import TimeNow from '../../atoms/Time'
 
 const Clock = () => {
   return (

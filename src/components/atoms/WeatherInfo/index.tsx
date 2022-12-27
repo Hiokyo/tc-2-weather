@@ -1,22 +1,22 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { dataWeather } from '../../../api/data';
-import { Col, Row, Space, Statistic, message } from 'antd';
+import { Button, Col, Row, Space, Statistic, message } from 'antd';
 
 import { minutesToMilliseconds, secondsToMilliseconds} from 'date-fns';
 import { ClockCircleTwoTone, ClockCircleOutlined } from '@ant-design/icons';
-import { wetherIcon } from '../../../untils/constant';
+import { Link } from 'react-router-dom';
+import { weekDays, wetherIcon } from '../../../untils/constant';
 import TimeNow from '../Time';
 import styles from './styles.module.scss';
+import { ROUTES } from '../../../routes';
 
 const { Countdown } = Statistic;
-
-const weekDays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
 const WeatherInfo = () => {
   const [ dayOfWeek, setDayOfWeek ] = useState('');
   const [ dataToday, setDataToday ] = useState<any>();
   const [ nowWeather, setNowWeather ] = useState();
-  const [ timeStartOfWeather, setTimeStartOfWeather ] = useState<any>();
+  // const [ timeStartOfWeather, setTimeStartOfWeather ] = useState<any>();
   const [ nextWeather, setNextWeather ] = useState();
   const [ durationOfWeather, setDurationOfWeather ] = useState();
   const [ timeLeft , setTimeLeft ] = useState<any>();
@@ -33,6 +33,7 @@ const WeatherInfo = () => {
         mins: element.mins,
       }
   })
+
   useEffect(()=> {
     const update = () => {
       const date = new Date()
@@ -49,7 +50,7 @@ const WeatherInfo = () => {
         itemNow = dataToday[indexItem -1];
         timeLeft = (minutesToMilliseconds(itemNow?.mins)) - (secondsToMilliseconds(totalSeconds) - (secondsToMilliseconds(timeData[indexItem - 1]?.time)))
         setTimeLeft(timeLeft);
-        setTimeStartOfWeather(dataToday[indexItem -1]?.time);
+        // setTimeStartOfWeather(dataToday[indexItem -1]?.time);
         setTime(date.toLocaleTimeString('en-US', {hour12: true}))
         setNowWeather(itemNow?.type);
         setNextWeather(dataToday[indexItem]?.type);
@@ -111,7 +112,21 @@ const WeatherInfo = () => {
         </Space>
       </Col>
       <Col span={4}>
-        <Countdown title="Countdown" value={values} prefix={<ClockCircleTwoTone/>} onFinish={handleShowMessage}/>
+        <Space
+          direction='vertical'
+          size='large'
+        >
+          <Countdown title="Countdown" value={values} prefix={<ClockCircleTwoTone/>} onFinish={handleShowMessage}/>
+          
+          <Link to={ROUTES.ListToday(dataToday, weekDays[today])}>
+            <Button 
+              className={styles.btnViewMore}
+              type={'primary'}
+              >
+              View weather today
+            </Button> 
+          </Link>
+        </Space>
       </Col>
     </Row>
   )

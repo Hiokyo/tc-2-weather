@@ -4,10 +4,14 @@
     border-radius: 10px;
     background: #0d1621;
     color: white;
-    display: flex;
     align-items: center;
     overflow: hidden;
+    padding: 30px 15px;
     justify-content: center;
+    p {
+      padding: 0;
+      margin: 0;
+    }
   }
   .hour {
     display: flex;

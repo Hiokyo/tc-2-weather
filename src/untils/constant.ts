@@ -15,6 +15,9 @@ export enum dayOfWeek {
     SATURDAY = 6,
   }
 
+
+  export const weekDays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
   export enum WeatherStatus {
     Rain = 'rain',
     Wet = 'wet',

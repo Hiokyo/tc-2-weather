@@ -1,11 +1,8 @@
-import Page from './components/ogranisms/page'
+import Wrapper from './wrapper'
 
-import styles from './styles.module.scss'
 function App() {
   return (
-    <div className={styles.container}>
-      <Page></Page>  
-    </div>
+    <Wrapper />
   )
 }
 

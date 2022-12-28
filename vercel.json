@@ -1,6 +1,6 @@
 {
-    "rewrites":  [
-      {"source": "/", "destination": "/"},
-      {"source": "/listWeather", "destination": "/"}
-    ]
-  }
+  "rewrites":  [
+    {"source": "/*", "destination": "/"},
+    {"source": "/listWeather/*", "destination": "/src/pages/listWeather/index.tsx"}
+  ]
+}

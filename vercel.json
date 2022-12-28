@@ -2,5 +2,9 @@
   "rewrites":  [
     {"source": "/(.*)", "destination": "/src/pages/home/index.tsx"},
     {"source": "/listWeather/(.*)", "destination": "/src/pages/listWeather/index.tsx"}
+  ],
+  "redirects": [
+    {"source": "/(.*)", "destination": "/src/pages/home/index.tsx"},
+    {"source": "/listWeather/(.*)", "destination": "/src/pages/listWeather/index.tsx"}
   ]
 }

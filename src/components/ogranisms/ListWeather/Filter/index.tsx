@@ -1,8 +1,9 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import styles from './styles.module.scss'
 import { DatePicker, Form, Select } from 'antd';
 import { WeatherStatus } from '../../../../untils/constant';
+
 
 const { Option } = Select;
 interface Props {
@@ -29,7 +30,7 @@ const Filter = (props: Props) => {
         weekDay = new Date(date.$d).getDay()
       }
       if (time) {
-        timeStamp = new Date(time.$d).getTime()
+        timeStamp = time.$H *3600 + time.$m * 60;
       }
       onChange({weekDay, timeStamp, status})
     }

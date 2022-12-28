@@ -4,7 +4,7 @@ export const dataWeather: any =
         {
             "time": "0:00",
             "type": "wet",
-            "mins": "2"
+            "mins": "2",
         },
         {
             "time": "0:02",

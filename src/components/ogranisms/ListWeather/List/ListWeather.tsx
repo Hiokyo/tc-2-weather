@@ -1,14 +1,14 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { ColumnsType } from 'antd/es/table';
-import { Table } from 'antd';
+import { Spin, Table, message } from 'antd';
 import { dataWeather } from '../../../../api/data';
 import Filter from '../Filter';
 import styles from './styles.module.scss'
-import { capitalize } from '../../../../untils/helper';
+import { capitalize, hexToDecimal } from '../../../../untils/helper';
 import { BellTwoTone } from '@ant-design/icons';
 import { weekDays } from '../../../../untils/constant';
-
-
+import { closestIndexTo, hoursToMilliseconds, millisecondsToSeconds, minutesToMilliseconds } from 'date-fns';
+import { sendNotification } from '../../../../api/discord';
 
 interface DataType {
   key: string;
@@ -24,9 +24,51 @@ interface Props {
 const ListWeather = (props: Props) => {
   const { today } = props;
   const [ dataToday, setDataToday ] = useState<any>();
-  const [ dataFilterStatus, setDataFilterStatus ] = useState<any>();
-  const [ dataFilterDate, setDataFilterDate ] = useState<any>();
   const [ dataFilter, setDataFilter ] = useState<any>();
+  const [loading, setLoading] = useState(false);
+
+  const handleSendNotification = async (record: any) => {
+    const date = new Date();
+    const nowH = date.getHours();
+    const nowM = date.getMinutes();
+    const nowTime = (hoursToMilliseconds(nowH) + minutesToMilliseconds(nowM))
+    let timeToSend = 0;
+    const pickerH = record?.time.split(':')[0];
+    const pickerM = record?.time.split(':')[1];
+    const pickerTime = (hoursToMilliseconds(+pickerH) + minutesToMilliseconds(+pickerM))
+
+    if (nowTime < pickerTime) {
+      timeToSend = Number(pickerTime) - Number(nowTime);
+    }
+    try {
+      const params = {
+        username: "Dino",
+        avatar_url: "https://wallpaperaccess.com/full/1916885.jpg",
+        embeds: [
+          {
+            author: {
+              name: "TC2 Weather"
+            },
+            title: "Time is coming!!!",
+            description: `The weather is ${record.type}, it happens within ${record.mins} minutes. Hurry up guys!`,
+            color: hexToDecimal("#ff0000"),
+            timestamp: new Date().toISOString(),
+          }
+        ]
+      }
+      if (record) {
+        setTimeout(()=> {
+          sendNotification(params)
+        }
+        ,timeToSend);
+        message.success('You have timed the notification successfully');
+      }
+      
+    } catch (error: any) {
+      message.error(error)
+    }
+
+  }
   
   const columns: ColumnsType<DataType> = [
     {
@@ -51,9 +93,10 @@ const ListWeather = (props: Props) => {
       title: '',
       key: 'action',
       width: '5%',
-      render: () => (
+      render: (_: any, record: any) => (
         <div className={styles.notifi}>
           <BellTwoTone
+            onClick={() => handleSendNotification(record)}
             style={{fontSize: 20}}
           />
         </div>
@@ -66,25 +109,55 @@ const ListWeather = (props: Props) => {
 
 
   const handleFilter = (value: any) => {
-   
+    setLoading(true)
+    let data: any = dataToday;
+    if (value.weekDay) {
+      const dayOfWeek = weekDays[value.weekDay]
+      const filterDate = dataWeather[dayOfWeek]
+      data = filterDate
+    }
+    if(value.timeStamp === 0 || value.timeStamp ){
+      const arr: any = []
+      data?.map((element: any ) => {
+        const h = (element.time)?.split(':')[0]
+        const m = (element.time)?.split(':')[1]
+        arr.push((h * 3600) + (m * 60))
+      })
+      const indexOfItem = closestIndexTo(value.timeStamp , arr)
+      if (indexOfItem === 0 || indexOfItem) {
+        const filterTime = data[indexOfItem]
+        data = [filterTime]
+      }
+    }
+    if(value.status && value.status !== 'All status'){
+      const filterStatus = data.filter((item: any) => item.type === (value.status).toLowerCase())
+      data = filterStatus;
+    }
+    setDataFilter(data);
+    setTimeout(()=> {
+      setLoading(false)
+    }
+    ,1000);
   };
 
-  // const data = useMemo(() => {
-  //   if (dataFilter) return dataFilter
-  //   else return dataToday
-  // }, [dataFilter, dataToday])
+  const data = useMemo(() => {
+    if (dataFilter) return dataFilter
+    else return dataToday
+  }, [dataFilter, dataToday])
 
   return (
     <>
       <Filter onChange={handleFilter}/>
-      <Table
-        className={styles.tableContainer}
-        columns={columns}
-        dataSource= {dataToday}
-        pagination={false}
-        rowKey={(record: any) => record?.time}
-        scroll={{y: '55vh'}}
-      />
+      <Spin spinning={loading}>
+        <Table
+          className={styles.tableContainer}
+          columns={columns}
+          dataSource= {data}
+          pagination={false}
+          rowKey={(record: any) => record?.time}
+          scroll={{y: '55vh'}}
+        />
+      </Spin>
     </>
   )
 }

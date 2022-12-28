@@ -1,6 +1,32 @@
 .tableContainer {
   margin: 10px 30px;
   opacity: 0.9;
+  :global {
+    .ant-table-thead th,
+    .ant-table-column-has-sorters {
+      background: #002766 !important;
+      height: 36px;
+      color: #fff !important;
+    }
+    .ant-table-cell::before,
+    .ant-table-thead th.ant-table-column-has-sorters:hover:before,
+    .ant-table-thead th.ant-table-column-sort:before {
+      background-color: #fff !important;
+    }
+    .ant-table.ant-table-small{
+      margin: 0 !important;
+    }
+
+    .editable-row:hover .editable-cell-value-wrap {
+      border: 1px solid #d9d9d9;
+    }
+    .ant-table-cell-scrollbar:not([rowspan]){
+      box-shadow: none;
+    }
+    .ant-table-column-sorter-inner{
+      color: #fff;
+    }
+}
   .notifi{
     display: flex;
     justify-content: center;

@@ -1,14 +1,15 @@
 import React, { useMemo, useState } from 'react';
 import type { ColumnsType } from 'antd/es/table';
-import { Spin, Table, message } from 'antd';
+import { Modal, Spin, Table, message } from 'antd';
 import { dataWeather } from '../../../../api/data';
 import Filter from '../Filter';
 import styles from './styles.module.scss'
 import { capitalize, hexToDecimal } from '../../../../untils/helper';
-import { BellTwoTone } from '@ant-design/icons';
+import { BellFilled, BellTwoTone } from '@ant-design/icons';
 import { weekDays } from '../../../../untils/constant';
 import { closestIndexTo, hoursToMilliseconds, millisecondsToSeconds, minutesToMilliseconds } from 'date-fns';
 import { sendNotification } from '../../../../api/discord';
+import isEqual from 'lodash.isequal'
 
 interface DataType {
   key: string;
@@ -26,6 +27,8 @@ const ListWeather = (props: Props) => {
   const [ dataToday, setDataToday ] = useState<any>();
   const [ dataFilter, setDataFilter ] = useState<any>();
   const [loading, setLoading] = useState(false);
+  const [visibleModalConfirm, setVisibleModalConfirm] = useState(false);
+  const [recordSendNoti, setRecordSendNoti] = useState<any>({});
 
   const handleSendNotification = async (record: any) => {
     const date = new Date();
@@ -62,14 +65,14 @@ const ListWeather = (props: Props) => {
         }
         ,timeToSend);
         message.success('You have timed the notification successfully');
+        setVisibleModalConfirm(false)
       }
       
     } catch (error: any) {
       message.error(error)
     }
-
   }
-  
+
   const columns: ColumnsType<DataType> = [
     {
       title: 'Weather',
@@ -95,10 +98,16 @@ const ListWeather = (props: Props) => {
       width: '5%',
       render: (_: any, record: any) => (
         <div className={styles.notifi}>
-          <BellTwoTone
-            onClick={() => handleSendNotification(record)}
-            style={{fontSize: 20}}
-          />
+          {(isEqual(record, recordSendNoti)) ? 
+            <BellFilled
+              style={{fontSize: 20}}
+            />
+            :
+            <BellTwoTone
+              onClick={() => handleModalConfirm(record)}
+              style={{fontSize: 20}}
+            />
+          }
         </div>
       ),
     },
@@ -107,6 +116,15 @@ const ListWeather = (props: Props) => {
     setDataToday(dataWeather[today]);
   }, [today])
 
+  const handleModalConfirm = (record: any) => {
+    setVisibleModalConfirm(true)
+    setRecordSendNoti(record)
+  }
+
+  const handleCancelModalConfirm = () => {
+    setVisibleModalConfirm(false)
+    setRecordSendNoti({})
+  }
 
   const handleFilter = (value: any) => {
     setLoading(true)
@@ -116,6 +134,11 @@ const ListWeather = (props: Props) => {
       const filterDate = dataWeather[dayOfWeek]
       data = filterDate
     }
+    if(value.status && value.status !== 'All status'){
+      const filterStatus = data.filter((item: any) => item.type === (value.status).toLowerCase())
+      data = filterStatus;
+    }
+    
     if(value.timeStamp === 0 || value.timeStamp ){
       const arr: any = []
       data?.map((element: any ) => {
@@ -128,10 +151,6 @@ const ListWeather = (props: Props) => {
         const filterTime = data[indexOfItem]
         data = [filterTime]
       }
-    }
-    if(value.status && value.status !== 'All status'){
-      const filterStatus = data.filter((item: any) => item.type === (value.status).toLowerCase())
-      data = filterStatus;
     }
     setDataFilter(data);
     setTimeout(()=> {
@@ -158,6 +177,13 @@ const ListWeather = (props: Props) => {
           scroll={{y: '55vh'}}
         />
       </Spin>
+      <Modal
+        open={visibleModalConfirm}
+        onOk={() => handleSendNotification(recordSendNoti)}
+        onCancel={handleCancelModalConfirm}
+      >
+        <h4>Are you sure to send notification for {recordSendNoti?.type} at {recordSendNoti?.time}</h4>
+      </Modal>
     </>
   )
 }

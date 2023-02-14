@@ -29,6 +29,7 @@ const ListWeather = (props: Props) => {
   const [loading, setLoading] = useState(false);
   const [visibleModalConfirm, setVisibleModalConfirm] = useState(false);
   const [recordSendNoti, setRecordSendNoti] = useState<any>({});
+  const [visibleModalCancelSendNoti, setVisibleModalCancelSendNoti] = useState(false)
 
   const handleSendNotification = async (record: any) => {
     const date = new Date();
@@ -73,6 +74,14 @@ const ListWeather = (props: Props) => {
     }
   }
 
+  const handleOpenModalCancelSendNoti = () => {
+    setVisibleModalCancelSendNoti(true)
+  }
+  const handleCancelSendNoti = () => {
+    setVisibleModalCancelSendNoti(false)
+    setRecordSendNoti({})
+  } 
+
   const columns: ColumnsType<DataType> = [
     {
       title: 'Weather',
@@ -101,6 +110,7 @@ const ListWeather = (props: Props) => {
           {(isEqual(record, recordSendNoti)) ? 
             <BellFilled
               style={{fontSize: 20}}
+              onClick={handleOpenModalCancelSendNoti}
             />
             :
             <BellTwoTone
@@ -120,10 +130,8 @@ const ListWeather = (props: Props) => {
     setVisibleModalConfirm(true)
     setRecordSendNoti(record)
   }
-
   const handleCancelModalConfirm = () => {
     setVisibleModalConfirm(false)
-    setRecordSendNoti({})
   }
 
   const handleFilter = (value: any) => {
@@ -138,7 +146,6 @@ const ListWeather = (props: Props) => {
       const filterStatus = data.filter((item: any) => item.type === (value.status).toLowerCase())
       data = filterStatus;
     }
-    
     if(value.timeStamp === 0 || value.timeStamp ){
       const arr: any = []
       data?.map((element: any ) => {
@@ -183,6 +190,13 @@ const ListWeather = (props: Props) => {
         onCancel={handleCancelModalConfirm}
       >
         <h4>Are you sure to send notification for {recordSendNoti?.type} at {recordSendNoti?.time}</h4>
+      </Modal>
+      <Modal
+        open={visibleModalCancelSendNoti}
+        onOk={handleCancelSendNoti}
+        onCancel={() => setVisibleModalCancelSendNoti(false)}
+      >
+        <h4>Are you sure to cancel send notification for {recordSendNoti?.type} at {recordSendNoti?.time}</h4>
       </Modal>
     </>
   )
